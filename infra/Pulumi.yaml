@@ -1,0 +1,11 @@
+name: infra
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: venv
+description: k3s_in_AWS_LAB-2
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: aws-python
