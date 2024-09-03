@@ -71,9 +71,12 @@ public_route_table_association = ec2.RouteTableAssociation('public-route-table-a
 
 
 # Elastic IP for NAT Gateway 
+# eip = ec2.Eip('nat-eip', 
+#     vpc=True,
+#     domain="vpc",  # Explicitly setting the domain attribute to "vpc"
+# )
 eip = ec2.Eip('nat-eip', 
-    vpc=True,
-    domain="vpc",  # Explicitly setting the domain attribute to "vpc"
+    vpc=True  # Use 'vpc' without setting 'domain'
 )
 
 # NAT Gateway
