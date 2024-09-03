@@ -1,6 +1,7 @@
 """An AWS Python Pulumi program"""
 
 import pulumi
+import os 
 import pulumi_aws as aws 
 import pulumi_aws.ec2 as ec2
 from pulumi_aws.ec2 import SecurityGroupRuleArgs
