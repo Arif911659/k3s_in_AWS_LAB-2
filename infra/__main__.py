@@ -18,7 +18,7 @@ vpc = aws.ec2.Vpc("my-vpc",
     enable_dns_hostnames=True,
     enable_dns_support=True,
     tags={
-        "Name": "my-vpc-for-k3s"
+        "Name": "my-vpc"
     }
 )
 
@@ -71,13 +71,13 @@ public_route_table_association = ec2.RouteTableAssociation('public-route-table-a
 
 
 # Elastic IP for NAT Gateway 
-# eip = ec2.Eip('nat-eip', 
-#     vpc=True,
-#     domain="vpc",  # Explicitly setting the domain attribute to "vpc"
-# )
 eip = ec2.Eip('nat-eip', 
-    vpc=True  # Use 'vpc' without setting 'domain'
+    vpc=True,
+    domain="my-vpc",  # Explicitly setting the domain attribute to "vpc"
 )
+# eip = ec2.Eip('nat-eip', 
+#     vpc=True  # Use 'vpc' without setting 'domain'
+# )
 
 # NAT Gateway
 nat_gateway = ec2.NatGateway(
