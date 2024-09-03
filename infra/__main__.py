@@ -152,6 +152,38 @@ git_runner_instance = ec2.Instance('git-runner-instance',
         }
 )
 
+# EC2 instances 
+master_instance = ec2.Instance('master-instance',
+    instance_type=instance_type,
+    ami=ami,
+    subnet_id=private_subnet.id,
+    vpc_security_group_ids=[security_group.id],
+    key_name=key_pair.key_name,
+    tags={
+        'Name': 'k3s-Master',
+        }
+)
+
+worker_instance_1 = ec2.Instance('worker-instance-1', 
+    instance_type=instance_type,
+    ami=ami,
+    subnet_id=private_subnet.id,
+    vpc_security_group_ids=[security_group.id],
+    key_name=key_pair.key_name,
+    tags={
+        'Name': 'k3s-worker-1',
+})
+
+worker_instance_2 = ec2.Instance('worker-instance-2', 
+    instance_type=instance_type,
+    ami=ami,
+    subnet_id=private_subnet.id,
+    vpc_security_group_ids=[security_group.id],
+    key_name=key_pair.key_name,
+    tags={
+        'Name': 'k3s-worker-2',
+        }
+)
 
 # Output the IDs of the created resources
 pulumi.export('vpc_id', vpc.id)

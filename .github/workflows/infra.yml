@@ -48,6 +48,13 @@ jobs:
         cd infra
         pulumi stack select arifhossaincse22/infra/deploy_k3s_in_AWS
 
+    - name: Pulumi refresh
+      run: |
+        cd infra
+        pulumi refresh --yes
+    - name: Set public key as github env
+      run: echo "PUBLIC_KEY_DESKTOPY=${{ secrets.PUBLIC_KEY_DESKTOP }}" >> $GITHUB_ENV
+
     - name: Pulumi up
       run: |
         source venv/bin/activate
