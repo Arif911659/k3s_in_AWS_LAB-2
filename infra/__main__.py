@@ -36,7 +36,7 @@ public_subnet = ec2.Subnet("public-subnet",
 )
 
 # Add private subnet
-private_subnet = ec2.Subnet('private-subnet',
+private_subnet = ec2.Subnet("private-subnet",
     vpc_id=vpc.id,
     cidr_block='10.10.2.0/24',
     map_public_ip_on_launch=False, 
