@@ -46,10 +46,31 @@ jobs:
       run: |
         source venv/bin/activate
         cd infra
-        pulumi stack select arifhossaincse22/infra/k3s_in_AWS
+        pulumi stack select arifhossaincse22/infra/deploy_k3s_in_AWS
+
+    - name: Pulumi refresh
+      run: |
+        cd infra
+        pulumi refresh --yes
+    - name: Set public key as github env
+      run: echo "PUBLIC_KEY_DESKTOPY=${{ secrets.PUBLIC_KEY_DESKTOP }}" >> $GITHUB_ENV
 
     - name: Pulumi up
       run: |
         source venv/bin/activate
         cd infra
         pulumi up --yes
+
+
+    - name: Save Pulumi outputs 
+      id: pulumi_outputs
+      run: |
+        GIT_RUNNER_IP=$(pulumi stack output git_runner_public_ip --cwd Infra) 
+        MASTER_IP=$(pulumi stack output master_private_ip --cwd Infra) 
+        WORKER1_IP=$(pulumi stack output worker1_private_ip --cwd Infra) 
+        WORKER2_IP=$(pulumi stack output worker2_private_ip --cwd Infra)
+
+        echo "GIT_RUNNER_IP=$GIT_RUNNER_IP" >> $GITHUB_ENV
+        echo "MASTER_IP=$MASTER_IP" >> $GITHUB_ENV 
+        echo "WORKER1_IP=$WORKER1_IP" >> $GITHUB_ENV
+        echo "WORKER2_IP=$WORKER2_IP" >> $GITHUB_ENV
