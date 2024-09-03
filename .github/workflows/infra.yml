@@ -46,7 +46,7 @@ jobs:
       run: |
         source venv/bin/activate
         cd infra
-        pulumi stack select arifhossaincse22/infra/k3s_in_AWS
+        pulumi stack select arifhossaincse22/infra/deploy_k3s_in_AWS
 
     - name: Pulumi up
       run: |
