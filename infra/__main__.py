@@ -101,6 +101,57 @@ private_route_table_association = ec2.RouteTableAssociation("private-route-table
     subnet_id=private_subnet.id,
     route_table_id=private_route_table.id
 )
+# Create Security Group
+security_group = aws.ec2.SecurityGroup("k3s-secgrp",
+    description='Enable SSH and K3s access',
+    vpc_id=vpc.id,
+    ingress=[
+        {
+            "protocol": "tcp",
+            "from_port": 22,
+            "to_port": 22,
+            "cidr_blocks": ["0.0.0.0/0"],
+        },
+        {
+            "protocol": "tcp",
+            "from_port": 6443,
+            "to_port": 6443,
+            "cidr_blocks": ["0.0.0.0/0"],
+        },
+    ],
+    egress=[
+        {
+        "protocol": "-1",
+        "from_port": 0,
+        "to_port": 0,
+        "cidr_blocks": ["0.0.0.0/0"],
+        }],
+    tags={
+        "Name": "k3s-secgrp"
+    }
+)
+# collect the public key from github workspace 
+public_key = os.getenv("PUBLIC_KEY_DESKTOP")
+
+# Create the EC2 KeyPair using the public key 
+key_pair = aws.ec2.KeyPair("my-key-pair",
+    key_name="my-key-pair", 
+    public_key=public_key
+)
+
+#Git Runner
+git_runner_instance = ec2.Instance('git-runner-instance', 
+    instance_type=instance_type,
+    ami=ami,
+    subnet_id=public_subnet.id,
+    vpc_security_group_ids=[security_group.id],
+    key_name=key_pair.key_name,
+
+    tags={
+        'Name': 'Git-Runner-Dev',
+        }
+)
+
 
 # Output the IDs of the created resources
 pulumi.export('vpc_id', vpc.id)
