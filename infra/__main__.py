@@ -8,8 +8,9 @@ from pulumi_aws.ec2 import SecurityGroupRuleArgs
 
 # Configuration
 config = pulumi.Config() 
-instance_type = 't3.small' 
-ami "ami-01811d4912b4ccb26"
+instance_type = 't2.micro' 
+ami = "ami-01811d4912b4ccb26"
+
 
 # Add vpc
 vpc = aws.ec2.Vpc("my-vpc",
