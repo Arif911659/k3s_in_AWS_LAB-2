@@ -71,13 +71,13 @@ public_route_table_association = ec2.RouteTableAssociation('public-route-table-a
 
 
 # Elastic IP for NAT Gateway 
-eip = ec2.Eip('nat-eip', 
-    vpc=True,
-    domain="my-vpc",  # Explicitly setting the domain attribute to "vpc"
-)
 # eip = ec2.Eip('nat-eip', 
-#     vpc=True  # Use 'vpc' without setting 'domain'
+#     vpc=True,
+#     domain="my-vpc",  # Explicitly setting the domain attribute to "vpc"
 # )
+eip = ec2.Eip('nat-eip', 
+    vpc=True  # Use 'vpc' without setting 'domain'
+)
 
 # NAT Gateway
 nat_gateway = ec2.NatGateway(
@@ -104,9 +104,56 @@ private_route_table_association = ec2.RouteTableAssociation(
     route_table_id=private_route_table.id
 )
 
+# Create Security Group for allowing SSH and k3s traffic
+security_group = aws.ec2.SecurityGroup("k3s-secgrp",
+    description='Enable SSH and K3s access',
+    vpc_id=vpc.id,
+    ingress=[
+        {
+            "protocol": "tcp",
+            "from_port": 22,
+            "to_port": 22,
+            "cidr_blocks": ["0.0.0.0/0"],
+        },
+        {
+            "protocol": "tcp",
+            "from_port": 6443,
+            "to_port": 6443,
+            "cidr_blocks": ["0.0.0.0/0"],       #[vpc.cidr_block], #Allow port to vpc-cidr
+        },
+    ],
+    egress=[
+        {
+        "protocol": "-1",
+        "from_port": 0,
+        "to_port": 0,
+        "cidr_blocks": ["0.0.0.0/0"],
+        }],
+    tags={
+        "Name": "k3s-secgrp"
+    }
+)
+
+# Read the public key from the environment (set by GitHub Actions).
+public_key = os.getenv("PUBLIC_KEY")
+
+# Create the EC2 KeyPair using the public key 
+key_pair = aws.ec2.KeyPair("my-key-pair",
+    key_name="my-key-pair", 
+    public_key=public_key)
+
+
+git_runner_instance = ec2. Instance('git-runner-instance', 
+    instance_type=instance_type,
+    ami=ami,
+    subnet_id=public_subnet.id,
+    vpc_security_group_ids=[security_group.id],
+    key_name=key_pair.key_name,
+    tags={
+        'Name': 'Git-Runner-Dev',
+        }
+)
+
+
 # (Optional) Output the IDs of created resources
-pulumi.export('vpc_id', vpc.id)
-pulumi.export('public_subnet_id', public_subnet.id)
-pulumi.export('private_subnet_id', private_subnet.id)
-pulumi.export('igw_id', igw.id)
-pulumi.export('nat_gateway_id', nat_gateway.id)
+pulumi.export('git_runner_public_ip', git_runner_instance.public_ip)
