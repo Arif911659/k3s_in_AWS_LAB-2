@@ -8,8 +8,8 @@ on:
     branches:
       - main
       - master
-    paths: 
-      - infra/**
+    # paths: 
+    #   - infra/**
 
 jobs:
   deploy:
@@ -43,5 +43,7 @@ jobs:
       run: pulumi login
 
     - name: Pulumi stack select
-      run: Pulumi stack select arifhossaincse22/infra/k3s_in_AWS
+      run: |
+        cd infra
+        Pulumi stack select arifhossaincse22/infra/k3s_in_AWS
 
