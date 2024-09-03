@@ -18,7 +18,7 @@ vpc = aws.ec2.Vpc("my-vpc",
     enable_dns_hostnames=True,
     enable_dns_support=True,
     tags={
-        "Name": "my-vpc-for-k3s"  # Replace "my-vpc-name" with the desired name
+        "Name": "my-vpc-for-k3s"
     }
 )
 
@@ -28,7 +28,7 @@ public_subnet = ec2.Subnet("public-subnet",
     vpc_id=vpc.id,
     cidr_block="10.10.1.0/24",
     map_public_ip_on_launch=True,  # Typically True for public subnets
-    availability_zone="ap-southeast-1a",  # Use a valid availability zone
+    availability_zone="ap-southeast-1a",
     tags={
         "Name": "public-subnet",
     }
@@ -37,7 +37,7 @@ public_subnet = ec2.Subnet("public-subnet",
 # Add private subnet
 private_subnet = ec2.Subnet('private-subnet',
     vpc_id=vpc.id,
-    cidr_block='10.10.2.0/24',  # Adjusted to avoid overlap with public subnet
+    cidr_block='10.10.2.0/24',
     map_public_ip_on_launch=False, 
     availability_zone='ap-southeast-1a',
     tags={
@@ -50,7 +50,7 @@ private_subnet = ec2.Subnet('private-subnet',
 igw = ec2.InternetGateway("Internet-Gateway",
     vpc_id=vpc.id,
     tags={
-        "Name": "my-igw"  # Replace with your desired IGW name
+        "Name": "my-igw"
     }
 )
 
@@ -71,8 +71,10 @@ public_route_table_association = ec2.RouteTableAssociation('public-route-table-a
 
 
 # Elastic IP for NAT Gateway 
-eip = ec2.Eip('nat-eip', vpc=True)
-
+eip = ec2.Eip('nat-eip', 
+    vpc=True,
+    domain="vpc",  # Explicitly setting the domain attribute to "vpc"
+)
 
 # NAT Gateway
 nat_gateway = ec2.NatGateway(
