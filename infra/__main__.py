@@ -1,13 +1,9 @@
 """ AWS Python Pulumi Program """
 
 import pulumi
-<<<<<<< HEAD
-import os 
-import pulumi_aws as aws 
-=======
 import pulumi_aws as aws
->>>>>>> main
 import pulumi_aws.ec2 as ec2
+from pulumi_aws.ec2 import SecurityGroupRuleArgs
 import os
 
 # Configuration
@@ -40,11 +36,7 @@ public_subnet = ec2.Subnet("public-subnet",
     }
 )
 
-<<<<<<< HEAD
-# Add private subnet
-=======
 # Create a Private Subnet
->>>>>>> main
 private_subnet = ec2.Subnet("private-subnet",
     vpc_id=vpc.id,
     cidr_block=private_subnet_cidr_block,
@@ -84,15 +76,6 @@ public_route_table_association = ec2.RouteTableAssociation("public-route-table-a
 # Create an Elastic IP for the NAT Gateway
 eip = ec2.Eip("nat-eip", vpc=True)
 
-<<<<<<< HEAD
-# Elastic IP for NAT Gateway 
-# eip = ec2.Eip('nat-eip', 
-#     vpc=True,
-#     domain="my-vpc",  # Explicitly setting the domain attribute to "vpc"
-# )
-eip = ec2.Eip('nat-eip', 
-    vpc=True  # Use 'vpc' without setting 'domain'
-=======
 # Create a NAT Gateway in the Public Subnet
 nat_gateway = ec2.NatGateway("nat-gateway",
     subnet_id=public_subnet.id,
@@ -100,7 +83,6 @@ nat_gateway = ec2.NatGateway("nat-gateway",
     tags={
         "Name": "my-nat-gateway"
     }
->>>>>>> main
 )
 
 # Create a Route Table for the Private Subnet
@@ -152,77 +134,26 @@ security_group = aws.ec2.SecurityGroup("k3s-secgrp",
 # collect the public key from github workspace 
 public_key = os.getenv("PUBLIC_KEY_DESKTOP")
 
-<<<<<<< HEAD
-# Create Security Group for allowing SSH and k3s traffic
-security_group = aws.ec2.SecurityGroup("k3s-secgrp",
-    description='Enable SSH and K3s access',
-    vpc_id=vpc.id,
-    ingress=[
-        {
-            "protocol": "tcp",
-            "from_port": 22,
-            "to_port": 22,
-            "cidr_blocks": ["0.0.0.0/0"],
-        },
-        {
-            "protocol": "tcp",
-            "from_port": 6443,
-            "to_port": 6443,
-            "cidr_blocks": ["0.0.0.0/0"],       #[vpc.cidr_block], #Allow port to vpc-cidr
-        },
-    ],
-    egress=[
-        {
-        "protocol": "-1",
-        "from_port": 0,
-        "to_port": 0,
-        "cidr_blocks": ["0.0.0.0/0"],
-        }],
-    tags={
-        "Name": "k3s-secgrp"
-    }
-)
-
-# Read the public key from the environment (set by GitHub Actions).
-public_key = os.getenv("PUBLIC_KEY")
-
-# Create the EC2 KeyPair using the public key 
-key_pair = aws.ec2.KeyPair("my-key-pair",
-    key_name="my-key-pair", 
-    public_key=public_key)
-
-
-git_runner_instance = ec2. Instance('git-runner-instance', 
-=======
 # Create the EC2 KeyPair using the public key 
 key_pair = aws.ec2.KeyPair("my-key-pair",
     key_name="my-key-pair", 
     public_key=public_key
 )
 
-#Git Runner
+#EC2 instances for Git Runner
 git_runner_instance = ec2.Instance('git-runner-instance', 
->>>>>>> main
     instance_type=instance_type,
     ami=ami,
     subnet_id=public_subnet.id,
     vpc_security_group_ids=[security_group.id],
     key_name=key_pair.key_name,
-<<<<<<< HEAD
-=======
 
->>>>>>> main
     tags={
         'Name': 'Git-Runner-Dev',
         }
 )
 
-<<<<<<< HEAD
-
-# (Optional) Output the IDs of created resources
-pulumi.export('git_runner_public_ip', git_runner_instance.public_ip)
-=======
-# EC2 instances 
+# EC2 instances for Master & Worker
 master_instance = ec2.Instance('master-instance',
     instance_type=instance_type,
     ami=ami,
@@ -261,4 +192,9 @@ pulumi.export('public_subnet_id', public_subnet.id)
 pulumi.export('private_subnet_id', private_subnet.id)
 pulumi.export('internet_gateway_id', igw.id)
 pulumi.export('nat_gateway_id', nat_gateway.id)
->>>>>>> main
+#Output the instance IP addresses
+pulumi.export('git_runner_public_ip', git_runner_instance.public_ip) 
+pulumi.export('master_private_ip', master_instance.private_ip) 
+pulumi.export('worker1_private_ip', worker_instance_1.private_ip)
+pulumi.export('worker2_private_ip', worker_instance_2.private_ip)
+
